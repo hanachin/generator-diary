@@ -6,11 +6,6 @@ var yeoman = require('yeoman-generator');
 
 var DiaryGenerator = module.exports = function DiaryGenerator(args, options, config) {
   yeoman.generators.Base.apply(this, arguments);
-
-  this.on('end', function () {
-    this.installDependencies({ skipInstall: options['skip-install'] });
-  });
-
   this.pkg = JSON.parse(this.readFileAsString(path.join(__dirname, '../package.json')));
 };
 
@@ -22,29 +17,33 @@ DiaryGenerator.prototype.askFor = function askFor() {
   // have Yeoman greet the user.
   console.log(this.yeoman);
 
-  var prompts = [{
-    type: 'confirm',
-    name: 'someOption',
-    message: 'Would you like to enable this option?',
-    default: true
-  }];
+  var prompts = [
+    {
+      name: 'diaryFileName',
+      message: '今日のブログのファイル名は何にする?',
+      default: function () {
+        var d     = new Date();
+        var year  = d.getFullYear();
+        var month = d.getMonth() + 1;
+        var date  = d.getDate();
+        if (month < 10) { month = "0" + month; }
+        if (date < 10)  { date  = "0" + date; }
+        return '' + year + month + date + '.md';
+      }
+    }
+  ];
 
   this.prompt(prompts, function (props) {
-    this.someOption = props.someOption;
+    this.diaryFileName = props.diaryFileName;
 
     cb();
   }.bind(this));
 };
 
 DiaryGenerator.prototype.app = function app() {
-  this.mkdir('app');
-  this.mkdir('app/templates');
-
-  this.copy('_package.json', 'package.json');
-  this.copy('_bower.json', 'bower.json');
+  this.mkdir('diary');
+  this.copy('empty', 'diary/' + this.diaryFileName);
 };
 
 DiaryGenerator.prototype.projectfiles = function projectfiles() {
-  this.copy('editorconfig', '.editorconfig');
-  this.copy('jshintrc', '.jshintrc');
 };
