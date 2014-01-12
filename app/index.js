@@ -6,6 +6,11 @@ var yeoman = require('yeoman-generator');
 
 var DiaryGenerator = module.exports = function DiaryGenerator(args, options, config) {
   yeoman.generators.Base.apply(this, arguments);
+
+  this.on('end', function () {
+    this.spawnCommand('subl', [this.diaryFileName]);
+  });
+
   this.pkg = JSON.parse(this.readFileAsString(path.join(__dirname, '../package.json')));
 };
 
@@ -28,7 +33,7 @@ DiaryGenerator.prototype.askFor = function askFor() {
         var date  = d.getDate();
         if (month < 10) { month = "0" + month; }
         if (date < 10)  { date  = "0" + date; }
-        return '' + year + month + date + '.md';
+        return 'diary/' + year + month + date + '.md';
       }
     }
   ];
@@ -42,7 +47,7 @@ DiaryGenerator.prototype.askFor = function askFor() {
 
 DiaryGenerator.prototype.app = function app() {
   this.mkdir('diary');
-  this.copy('empty', 'diary/' + this.diaryFileName);
+  this.copy('empty', this.diaryFileName);
 };
 
 DiaryGenerator.prototype.projectfiles = function projectfiles() {
